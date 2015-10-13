@@ -1,0 +1,20 @@
+免费的编程中文书籍索引
+https://github.com/justjavac/free-programming-books-zh_CN
+MyBatis中文文档
+http://mybatis.github.io/mybatis-3/zh/index.html
+Scala 课堂
+http://twitter.github.io/scala_school/zh_cn/index.html
+Apache MINA User Guide 中文翻译《Apache MINA 2 用户指南》
+https://github.com/waylau/apache-mina-2.x-user-guide
+Netty 4.x User Guide 中文翻译《Netty 4.x 用户指南》
+https://github.com/waylau/netty-4-user-guide
+Essential Netty in Action 《Netty 实战(精髓)》
+https://github.com/waylau/essential-netty-in-action
+Spring Boot Reference Guide中文翻译 -《Spring Boot参考指南》
+https://github.com/qibaoguang/Spring-Boot-Reference-Guide
+spring-framework-4-reference
+https://github.com/waylau/spring-framework-4-reference
+Programming-Alpha-To-Omega
+https://github.com/justjavac/Programming-Alpha-To-Omega
+实时 Java 系列
+http://www.ibm.com/developerworks/cn/java/j-rtj/?ca=j-h-p
