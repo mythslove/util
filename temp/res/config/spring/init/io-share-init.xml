@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" 
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+ 
+	<!-- io share 模块 -->
+	<bean id="ioMsgSender" class="com.xianling.io.swap.IoMsgSender" init-method="init">
+		<property name="ioMsgTunnel" ref="ioMsgTunnel"></property>
+	</bean>
+
+	<bean id="ioMsgTunnel" class="com.xianling.io.swap.IoMsgTunnel">
+		<property name="ioMsgDispatcher" ref="ioMsgDispatcher"></property>
+	</bean>
+	
+	<bean id="ioMsgDispatcher" class="com.xianling.io.swap.IoMsgDispatcher">
+		<constructor-arg index="0" ref="ioExecutor"></constructor-arg>
+		<constructor-arg index="1" ref="ioFrontEnd"></constructor-arg>
+		<constructor-arg index="2" ref="msgStatistics"></constructor-arg>
+	</bean>
+	
+	<bean id="ioExecutor" class="com.kernel.pool.executor.TimeoutBusinessExecutor">
+		<constructor-arg index="0">
+			<map>
+				<entry key="io_all" value="1"></entry>
+				<entry key="io_bus" value="1"></entry>
+				<entry key="io_stage" value="3"></entry>
+			</map>
+		</constructor-arg>
+		<constructor-arg index="1" value="3"></constructor-arg>
+		<constructor-arg index="2" value="150000"></constructor-arg>
+		<constructor-arg index="3" value="120"></constructor-arg>
+		<constructor-arg index="4" value="io"></constructor-arg>
+	</bean>
+	
+	<bean id="ioFrontEnd" class="com.hehj.easyexecutor.front.DefaultFrontend">
+		<constructor-arg index="0" ref="ioFrontManager"></constructor-arg>
+	</bean>
+	
+	<bean id="ioFrontManager" class="com.hehj.easyexecutor.manager.DefaultManager">
+		<constructor-arg index="0" ref="ioFrontConfigManager"></constructor-arg>
+		<constructor-arg index="1" ref="ioWorkerContainer"></constructor-arg>
+	</bean>
+	
+	<bean id="ioWorkerContainer" class="com.hehj.easyexecutor.manager.SpringWorkerContainer"></bean>
+	
+	<bean id="ioFrontConfigManager" class="com.hehj.easyexecutor.config.EasyexecutorConfigManager">
+		<constructor-arg index="0" value="config/easyexecutor/io-easyexecutor-config.xml"></constructor-arg>
+	</bean>
+	
+</beans>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" 
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+ 	
+						
+	<!-- 配置定时刷新 begin -->
+	<bean id = "quartzScheduler" class ="org.springframework.scheduling.quartz.SchedulerFactoryBean" init-method="start">
+		<property name="quartzProperties">
+			<props>
+				<prop key="org.quartz.threadPool.threadCount">1</prop>
+				<prop key="org.quartz.scheduler.skipUpdateCheck">true</prop>
+			</props>
+		</property>
+		<property name="triggers">
+			<list>
+				<ref bean="msgStatisticsTrigger"/>
+				<ref bean="maxCountTrigger"/>
+				<ref bean="dbCheckTrigger"/>
+				<ref bean="kuafuStateCheckTrigger"/>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id = "globalQuartzScheduleExecutor" class="com.kernel.schedule.QuartzScheduleExecutor">
+		<property name="quartzScheduler" ref="quartzScheduler"></property>
+	</bean>
+	
+	<!-- 配置定时刷新 end -->
+	
+	
+	<!-- 统计消息性能定时begin -->
+	<bean id = "msgStatisticsTrigger" class = "org.springframework.scheduling.quartz.CronTriggerBean" >
+		<property name="jobDetail" ref="msgStatisticsJobAgent"></property>
+		<property name="cronExpression" value="0 */1 * * * ?" /> 
+	</bean>
+	
+	<bean id = "msgStatisticsJobAgent" class = "org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="msgStatistics"></property>
+		<property name="targetMethod" value="flush2File"></property>
+		<property name="concurrent" value="false"></property>
+	</bean>
+	<!-- 统计消息性能定时end -->
+	
+	<!-- 最大在线人数刷新定时begin -->
+	<bean id = "maxCountTrigger" class = "org.springframework.scheduling.quartz.CronTriggerBean" >
+		<property name="jobDetail" ref="maxCountJobAgent"></property>
+		<property name="cronExpression" value="*/15 * * * * ?" /> 
+	</bean>
+	
+	<bean id = "maxCountJobAgent" class = "org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="maxCountJob"></property>
+		<property name="targetMethod" value="refresh"></property>
+		<property name="concurrent" value="false"></property>
+	</bean>
+	<bean id = "maxCountJob" class = "com.xianling.io.global.GsCountChecker"></bean>
+	<!-- 最大在线人数刷新定时end -->
+	
+	
+	<!-- db check begin -->
+	<bean id = "dbCheckTrigger" class = "org.springframework.scheduling.quartz.CronTriggerBean" >
+		<property name="jobDetail" ref="dbCheckJobAgent"></property>
+		<property name="cronExpression" value="*/30 * * * * ?" />
+	</bean>
+	
+	<bean id = "dbCheckJobAgent" class = "org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="dbCheckJob"></property>
+		<property name="targetMethod" value="check"></property>
+		<property name="concurrent" value="false"></property>
+	</bean>
+	<bean id = "dbCheckJob" class = "com.kernel.check.db.DBOnlineChecker">
+		<property name="sqlMapClient" ref="mysqldbSqlMapClient" />
+	</bean>
+	<!-- db check end -->
+	
+	<!-- kuafu state check -->
+	<bean id = "kuafuStateCheckTrigger" class = "org.springframework.scheduling.quartz.CronTriggerBean" >
+		<property name="jobDetail" ref="kuafuStateCheckJobAgent"></property>
+		<property name="cronExpression" value="0 */1 * * * ?" />
+	</bean>
+	<bean id = "kuafuStateCheckJobAgent" class = "org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="kuafuNetTunnel"></property>
+		<property name="targetMethod" value="checkKunfuState"></property>
+		<property name="concurrent" value="true"></property>
+	</bean>
+	<!-- kuafu state check -->
+</beans>

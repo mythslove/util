@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<easyexecutorconfig>
+	
+	<worker-scan>com.xianling.login</worker-scan>
+	<worker-scan>com.xianling.public_</worker-scan>
+
+</easyexecutorconfig>

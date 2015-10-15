@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" 
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+ 
+ 	<import resource="data-cacheloader-init.xml"/>
+ 
+ 	<bean id = "roleCacheManager" class="com.kernel.data.cache.CacheManager" init-method="init">
+ 		<property name="name" value="role"></property>
+ 		<property name="needCleaner" value="true"></property>
+ 		<property name="cleanGap" value="1"></property>
+ 		<property name="entityCacheLoader" ref="roleCacheLoader"></property>
+ 		<property name="asyncWriteManager" ref="asyncWriteManager"></property>
+ 	</bean>
+
+ 	<bean id = "publicCacheManager" class="com.kernel.data.cache.CacheManager" init-method="init">
+ 		<property name="name" value="public"></property>
+ 		<property name="needCleaner" value="true"></property>
+ 		<property name="cleanGap" value="1"></property>
+ 		<property name="entityCacheLoader" ref="publicCacheLoader"></property>
+ 		<property name="asyncWriteManager" ref="asyncWriteManager"></property>
+ 	</bean>
+ 	
+ 	<bean id = "configureCacheManager" class="com.kernel.data.cache.CacheManager" init-method="init">
+ 		<property name="name" value="configure"></property>
+ 		<property name="entityCacheLoader" ref="configureCacheLoader"></property>
+ 	</bean>
+ 
+	<!-- 直接访问db accessor -->
+	<bean id = "directDbAccessor" class="com.kernel.data.accessor.database.ibatis.IbatisDatabaseAccessor">
+		<constructor-arg ref="mysqldbSqlMapClient"></constructor-arg>
+	</bean>
+
+	<!-- 角色缓存db accessor -->
+	<bean id ="roleCacheDbAccessor" class="com.kernel.data.accessor.cache.EntityCacheAccessor">
+		<property name="cacheManager" ref="roleCacheManager"></property>
+		<property name="asyncWriteManager" ref="asyncWriteManager"></property>
+	</bean>
+
+	<!-- public缓存db accessor -->
+	<bean id ="publicCacheDbAccessor" class="com.kernel.data.accessor.cache.EntityCacheAccessor">
+		<property name="cacheManager" ref="publicCacheManager"></property>
+		<property name="asyncWriteManager" ref="asyncWriteManager"></property>
+	</bean>
+	
+	<!-- 配置db accessor -->
+	<bean id ="configureCacheDbAccessor" class="com.xianling.configure.dao.accesser.ConfigureCacheAccessor">
+	</bean>
+		
+	<!-- db管理器 -->
+	<bean id = "accessorManager" class = "com.kernel.data.accessor.AccessorManager">
+		<property name="accessors">
+			<map>
+				<entry key="direct" value="directDbAccessor" />
+				<entry key="roleCache" value="roleCacheDbAccessor" />
+				<entry key="publicCache" value="publicCacheDbAccessor" />
+				<entry key="configure" value="configureCacheDbAccessor" />
+			</map>
+		</property>
+		<property name="defaultDbType">
+			<value>direct</value>
+		</property>
+	</bean>
+	
+</beans>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" 
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+ 
+	<bean id="mysqldbDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass">
+			<value>com.mysql.jdbc.Driver</value>
+		</property>
+		<property name="jdbcUrl">
+			<value>${mysqldb.jdbcUrl}</value>
+		</property>
+		<property name="user">
+			<value>${mysqldb.user}</value>
+		</property>
+		<property name="password">
+			<value>${mysqldb.password}</value>
+		</property>
+		<!-- 当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3 -->
+		<property name="acquireIncrement">
+		<value>1</value>
+		</property>
+		<property name="initialPoolSize">
+		<value>10</value>
+		</property>
+		<property name="minPoolSize">
+		<value>10</value>
+		</property>
+		<property name="maxPoolSize">
+		<value>30</value>
+		</property>
+		<!-- 最大空闲时间,定义时间内未使用则连接被丢弃。若为0则永不丢弃。Default: 0 -->
+		<property name="maxIdleTime">
+		<value>1000</value>
+		</property>
+		<!-- 处理网络或数据库异常后自动重连属性配置 -->
+		<property name="breakAfterAcquireFailure">
+			<value>false</value>
+		</property>
+		<property name="testConnectionOnCheckout">
+			<value>false</value>
+		</property>
+		<property name="testConnectionOnCheckin">
+			<value>false</value>
+		</property>
+		<property name="idleConnectionTestPeriod">
+			<value>30</value>
+		</property>
+		<property name="acquireRetryAttempts">
+			<value>2</value>
+		</property>
+		<property name="acquireRetryDelay">
+			<value>1000</value>
+		</property>
+	</bean>
+	
+	<!-- sqlmap -->
+	<bean id = "sqlmapClientBuilder" class = "com.kernel.data.accessor.database.ibatis.support.EnhancedSqlmapClientBuilder" init-method="init">
+		<property name="dataSource" ref="mysqldbDataSource"/>
+		<property name="sqlMapConfigResource" value="config/spring/ibatis/sqlmapConfig.xml"></property>
+	</bean>
+	<bean id="mysqldbSqlMapClient" factory-bean="sqlmapClientBuilder" factory-method="get">
+	</bean>
+	
+	<!-- sqlmap动态注入接口 -->
+	<bean id="sqlmapConfigExportService" class="com.xianling.global.share.export.impl.SqlmapConfigExportServiceImpl">
+		<property name="enhancedSqlmapBuilder" ref="sqlmapClientBuilder"></property>
+	</bean>
+	
+</beans>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<easyexecutorconfig>
+	
+	<worker-global-interceptor className="com.xianling.stage.easyaction.interceptor.StageInterceptor" springBean="true"></worker-global-interceptor>
+	<worker-scan>com.xianling.stage</worker-scan>
+
+</easyexecutorconfig>

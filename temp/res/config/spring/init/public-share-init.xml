@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" 
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+ 
+	<!-- bus share 模块 -->
+	<bean id="publicMsgSender" class="com.xianling.public_.tunnel.PublicMsgSender" init-method="init">
+		<property name="publicMsgDispatcher" ref="publicMsgDispatcher"></property>
+		<property name="publicMsgTunnel" ref="publicMsgTunnel"></property>
+	</bean>
+	
+	<bean id="publicMsgTunnel" class="com.xianling.public_.tunnel.PublicMsgTunnel" depends-on="publicMsgSender">
+		<property name="publicMsgDispatcher" ref="publicMsgDispatcher"></property>
+	</bean>
+	
+	<bean id="publicMsgDispatcher" class="com.xianling.public_.tunnel.PublicMsgDispatcher">
+		<constructor-arg index="0" ref="publicExecutor"></constructor-arg>
+		<constructor-arg index="1" ref="publicFrontEnd"></constructor-arg>
+		<constructor-arg index="2" ref="msgStatistics"></constructor-arg>
+	</bean>
+	 	
+	<bean id="publicExecutor" class="com.kernel.pool.executor.BalanceBusinessExecutor">
+		<constructor-arg index="0" value="11"></constructor-arg>
+		<constructor-arg index="1" value="1"></constructor-arg>
+		<constructor-arg index="2" value="11"></constructor-arg>
+		<constructor-arg index="3" value="public_balance_executor"></constructor-arg>
+		<constructor-arg index="4">
+			<map>
+				<entry key="login" value="6"></entry>
+				<entry key="node-control" value="6"></entry>
+				<entry key="guild" value="1"></entry>
+				<entry key="public" value="3"></entry>
+				<entry key="system" value="1"></entry>
+			</map>
+		</constructor-arg>
+		<constructor-arg index="5" ref="publicRuleInfoCheck"></constructor-arg>
+	</bean>
+	 
+	 <!--
+	<bean id="publicExecutor" class="com.kernel.pool.executor.DefaultBusinessExecutor">
+		<constructor-arg index="0">
+			<map>
+				<entry key="login" value="6"></entry>
+				<entry key="node-control" value="6"></entry>
+				<entry key="public" value="6"></entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	-->
+	<bean id="publicRuleInfoCheck" class="com.xianling.public_.share.ruleinfo.PublicRuleInfoCheck"></bean>
+	
+	<bean id="publicFrontEnd" class="com.hehj.easyexecutor.front.DefaultFrontend">
+		<constructor-arg index="0" ref="publicFrontManager"></constructor-arg>
+	</bean>
+	
+	<bean id="publicFrontManager" class="com.hehj.easyexecutor.manager.DefaultManager">
+		<constructor-arg index="0" ref="publicFrontConfigManager"></constructor-arg>
+		<constructor-arg index="1" ref="publicWorkerContainer"></constructor-arg>
+	</bean>
+	
+	<bean id="publicWorkerContainer" class="com.hehj.easyexecutor.manager.SpringWorkerContainer"></bean>
+	
+	<bean id="publicFrontConfigManager" class="com.hehj.easyexecutor.config.EasyexecutorConfigManager">
+		<constructor-arg index="0" value="config/easyexecutor/public-easyexecutor-config.xml"></constructor-arg>
+	</bean>
+	
+</beans>

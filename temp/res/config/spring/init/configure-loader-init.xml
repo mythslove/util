@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" 
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+ 	<!-- 
+	<bean id="classpathConfigureLoader" class="com.xianling.configure.loader.ClasspathConfigureLoader"></bean>
+	 -->
+	 
+	 <bean id="remoteReader" class="com.xianling.configure.loader.RemoteConfigureLoader">
+		<property name="gameconfigBaseUrl" value="${config_server_base_url}"></property>
+		<property name="gamedownloadBaseUrl" value="${config_server_download_base_url}"></property>
+	</bean>
+		<!--
+	<bean id="kaifuRemoteReader" class="com.chuan.configure.KaifuRemoteConfigureLoader">
+		<property name="gameconfigBaseUrl" value="${config_server_base_url}"></property>
+	</bean>
+	<bean id="rechargeRemoteReader" class="com.chuan.configure.RechargeRemoteConfigureLoader">
+		<property name="gameconfigBaseUrl" value="${config_server_base_url}"></property>
+	</bean>
+	<bean id="rankHuodongRemoteReader" class="com.chuan.configure.RankHuodongRemoteConfigureLoader">
+		<property name="gameconfigBaseUrl" value="${config_server_base_url}"></property>
+	</bean>
+	<bean id="choujiangHuodongRemoteReader" class="com.chuan.configure.ChoujiangHuodongRemoteConfigureLoader">
+		<property name="gameconfigBaseUrl" value="${config_server_base_url}"></property>
+	</bean>-->
+	<bean id="zongheHuodongRemoteReader" class="com.xianling.configure.loader.ZongheHuodongRemoteConfigureLoader">
+		<property name="gameconfigBaseUrl" value="${config_server_base_url}"></property>
+		<property name="gamedownloadBaseUrl" value="${config_server_download_base_url}"></property>
+	</bean>
+	 
+</beans>

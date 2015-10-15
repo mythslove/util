@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" 
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+ 
+	<import resource="spring-init.xml"/>
+	<!-- 关机模块  -->
+	<import resource="stop-init.xml"/>
+	<!--interceptor 模块-->
+	<import resource="interceptor-init.xml"/>
+	<!-- 安全端口模块  -->
+	<import resource="safe-service-init.xml"/>
+	
+	<!-- 同步模块  -->
+	<import resource="sync-init.xml"/>
+	<!-- token模块  -->
+	<import resource="token-init.xml"/>
+	<!-- gs share模块  -->
+	<import resource="swap-init.xml"/>
+	<!-- stage share模块  -->
+	<import resource="io-share-init.xml"/>
+	
+	 <!-- 统计模块 -->
+ 	<import resource="msgstatistics-init.xml"/>
+	<!-- quartz-init --> 
+	<import resource="schedule-quartz-init.xml"/>
+	<!-- 定时模块-->
+ 	<import resource="schedule-init.xml"/>
+ 	
+ 	
+ 	<!-- 数据存取相关  -->
+	<import resource="data-accessor-init.xml"/>
+	<!-- 异步回写相关  -->
+	<import resource="data-async-write-init.xml"/>
+	<!-- datacontainer内存数据容器模块  -->
+	<import resource="data-container-init.xml"/>
+	
+	<!-- configure模块 -->
+	<import resource="configure-loader-init.xml"/>
+
+	<!-- gs share模块  -->
+	<import resource="gs-share-init.xml"/>
+	<!-- public share模块  -->
+	<import resource="public-share-init.xml"/>
+	<!-- bus share模块  -->
+	<import resource="bus-share-init.xml"/>
+	<!-- stage share模块 -->
+	<import resource="stage-share-init.xml"/>
+	<!-- kuafu share模块 -->
+	<import resource="kuafu-share-init.xml"/>
+	 
+	
+</beans>
