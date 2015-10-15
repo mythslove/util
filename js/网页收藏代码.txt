@@ -1,0 +1,14 @@
+function addFavorite(){
+	var w = window;
+	var d = document;
+	var t = "¡¶»¨Ç§¹Ç¡·";
+	var u = "http://hqg.37.com/";
+	if(w.sidebar && w.sidebar.addPanel){
+		w.sidebar.addPanel(t,u,"");
+	}else if(w.external && w.external.AddFavorite){
+		w.external.AddFavorite(u,t);
+	}else{
+	   return false;
+	}
+	return true;
+}
