@@ -1,0 +1,87 @@
+使用import简化spring的配置文件
+对于spring配置文件的编写，我想，对于经历过庞大项目的人，都有那种恐惧的心理，太多的配置文件。不过，分模块都是大多数人能想到的方法，但是，怎么分模块，那就是仁者见仁，智者见智了。我的策略是使用import。
+基本代码格式如下
+ web.xml
+    ......
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            /WEB-INF/spring-config/applicationContext.xml
+        </param-value>
+    </context-param>
+    ......
+
+ 
+web.xml文件中只需制定一个文件
+在/WEB-INF/spring-config/目录下包含了所有spring配置文件，包括一个总配置文件，以及各个模块的配置文件
+applicationContext.xml 
+<?xml version="1.0" encoding="gb2312"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+    <import resource="CTIContext.xml" />
+    <import resource="customerContext.xml" />
+    <import resource="customerServingContext.xml" />
+    <import resource="manageContext.xml" />
+    <import resource="routineContext.xml" />
+    <import resource="systemContext.xml" />
+    ...........
+   包括数据源，以及事务的基本配置
+    ...........
+    这时所有DAO的基类，各个模块的DAO都配置成继承这个类，就省去了在配置sessionFactory的麻烦
+    <!-- Base DAO -->
+    <bean id="baseDAO" abstract="true"
+        class="com.mycompany.myproject.framework.BaseDAOImpl">
+        <property name="sessionFactory">
+            <ref bean="sessionFactory" />
+        </property>
+    </bean>
+
+</beans>
+
+applicationContext.xml文件中使用import的方式导入有模块配置文件，以后若有新模块的加入，那就可以简单修改这个文件了
+system模块配置文件
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <!-- DAO -->
+    <bean id="userDAO" parent="baseDAO"
+        class="com.mycompany.myproject.module.system.dao.UserDAOImpl">
+        <constructor-arg>
+            <value>com.mycompany.myproject.domain.system.User</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="agentDAO" parent="baseDAO"
+        class="com.mycompany.myproject.module.system.dao.AgentDAOImpl">
+        <constructor-arg>
+            <value>com.mycompany.myproject.domain.system.Agent</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="agentGroupDAO" parent="baseDAO"
+        class="com.mycompany.myproject.module.system.dao.AgentGroupDAOImpl">
+        <constructor-arg>
+            <value>
+                com.mycompany.myproject.domain.system.AgentGroup
+            </value>
+        </constructor-arg>
+    </bean>
+
+    <!-- Service -->
+    <bean id="userService" parent="baseTransactionProxy">
+        <property name="target">
+            <bean
+                class="com.mycompany.myproject.module.system.service.UserServiceImpl">
+                <property name="userDAO" ref="userDAO" />
+            </bean>
+        </property>
+    </bean>
+
+</beans>
+
+可以仔细看这个文件是怎么使用spring中abstract的方式申明继承关系的。
+我看到有不少人采用spring自带的策略，把DAO与service层的配置分开，我认为这种策略不好，因为大多数时候，这两部分都是需要同时变动的，若放在两个文件中的话，那就会增加了每次修改配置文件的时间，而且，不利于重用。
+若是结合我的上篇文章(关于spring单元测试的)的策略，那么这种方式就会发挥更大的威力

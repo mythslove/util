@@ -1,0 +1,35 @@
+com.kernel.pool.executor.BalanceBusinessExecutor
+com.kernel.sync.LockManager
+com.kernel.easyaction.spring
+com.hehj.easyexecutor.manager.DefaultManager
+com.hehj.easyexecutor.manager.SpringWorkerContainer
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+	<bean id="safeServiceListener" class="com.xianling.io.SafeServiceListener" init-method="init"></bean>
+
+	<bean id="busScheduleExecutor" class="com.kernel.schedule.ScheduleExecutor"></bean>
+	<bean id="publicScheduleExecutor" class="com.kernel.schedule.ScheduleExecutor"></bean>
+	<bean id="stageScheduleExecutor" class="com.kernel.schedule.ScheduleExecutor"></bean>
+</beans>
+
+init-method
+
+IoC(Inversion of Control)控制反转和 DI(Dependency Injection)依赖注入
+
+通过配置注入@Aspectj切面
+虽然可以通过编程的方式注入切面，但是一般情况下，我们还是使用spring的配置自动完成创建代理织入切面的工作。
+通过aop命名空间的<aop:aspectj-autoproxy/>声明自动为spring容器中那些配置@aspectJ切面的bean创建代理，织入切面。当然，spring 在内部依旧采用AnnotationAwareAspectJAutoProxyCreator进行自动代理的创建工作，但具体实现的细节已经被<aop:aspectj-autoproxy/>隐藏起来了 
+
+<aop:aspectj-autoproxy/>有一个proxy-target-class属性，默认为false，表示使用jdk动态代理织入增强，当配为<aop:aspectj-autoproxy poxy-target-class="true"/>时，表示使用CGLib动态代理技术织入增强。不过即使proxy-target-class设置为false，如果目标类没有声明接口，则spring将自动使用CGLib动态代理。 
+
+注意：
+如果action不使用@Component("actionName") 那么action是由struts2产生，如果加上@Component("u") 则struts.xml中的
+<action name="u" class="u"> 的class要为u,则为spring产生的action，struts2找action的时候，去spring容器中找action
