@@ -1,0 +1,53 @@
+//if( typeof define === "function" )
+//{
+//	define( "puremvc", [], function()
+//	{
+        //if (typeof type === "undefined") { type = null; }
+		var __extends = this.__extends || function (d, b) {
+            function __() { this.constructor = d; }
+            __.prototype = b.prototype;
+            d.prototype = new __();
+        }
+		var namespace;
+		(function(namespace){
+            "use strict";
+			var Demo = (function(_super){
+				__extends(Demo,_super);
+				function Demo(arg1,arg2){
+					if(Demo.instance) {
+                        throw Error(Demo.SINGLETON_MSG);
+                    }
+                    Demo.instance = this;
+                    if (typeof arg1 === "undefined") { arg1 = null; }
+                    if (typeof arg2 === "undefined") { arg2 = null; }
+                        _super.call(this);
+                    this.arg1 = null;
+					this.arg1 = (arg1 != null)? arg1 : "";
+				}
+                Demo.prototype.setData = function (data) {
+                    this.data = data;
+                };
+                Demo.prototype.getData = function () {
+                    return this.data;
+                };
+                Demo.prototype.onRegister = function () {
+                };
+                Demo.prototype.onRemove = function () {
+                };
+                Demo.NAME = "Demo";
+				Demo.SINGLETON_MSG = "Demo singleton already constructed!";
+                Demo.instance = null;
+                Demo.getInstance = function getInstance() {
+                    if(!Demo.instance) {
+                        Demo.instance = new Demo();
+                    }
+                    return Demo.instance;
+                }
+				return Demo;
+			})(namespace.Demo = Demo);
+		})(namespace || (namespace = {}));
+//
+//
+//		return puremvc;
+//	});
+//}
