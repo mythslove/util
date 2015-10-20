@@ -1,0 +1,140 @@
+从logback迁移到log4j2
+
+删除掉原有的包 log4j-over-slf4j-1.6.4.jar logback-classic-1.0.7.jar logback-core-1.0.7.jar slf4j-api-1.6.4.jar
+增添以下的包 log4j-over-slf4j-1.7.5.jar log4j-api-2.0-beta8.jar log4j-core-2.0-beta8.jar  log4j-slf4j-impl-2.0-beta8.jar
+
+由于作者推荐，为了性能考虑，尽量不要使用slf4j，但我依赖的第三方框架比如spring有对slf4j使用，所以对JAR包做了以上的取舍，所以原有代码中要做如下的改动
+
+改动前:import org.slf4j.Logger;
+      import org.slf4j.LoggerFactory;
+     private static final Logger logger = LoggerFactory.getLogger(OOXX.class);
+
+改动后:iimport org.apache.logging.log4j.LogManager;
+      import org.apache.logging.log4j.Logger;
+     private static final Logger logger = LogManager.getLogger(OOXX.class);
+
+配置文件log4j2.xml如下:
+<?xml version="1.0" encoding="UTF-8"?>  
+<!-- status=debug 可以查看log4j的装配过程 -->  
+<configuration status="off" monitorInterval="1800">  
+    <properties>  
+        <property name="LOG_HOME">/log/fish</property>  
+        <!-- 日志备份目录 -->  
+        <property name="BACKUP_HOME">{LOG_HOME}/backup</property>  
+        <property name="STAT_NAME">stat</property>  
+        <property name="SERVER_NAME">global</property>  
+    </properties>  
+    <appenders>  
+        <!-- 定义控制台输出 -->  
+        <Console name="Console" target="SYSTEM_OUT" follow="true">  
+            <PatternLayout pattern="%date{yyyy-MM-dd HH:mm:ss.SSS} %level [%thread][%file:%line] - %msg%n" />  
+        </Console>  
+        <!-- 程序员调试日志 -->  
+        <RollingRandomAccessFile name="DevLog" fileName="${LOG_HOME}/${SERVER_NAME}"  
+            filePattern="${LOG_HOME}/${SERVER_NAME}.%d{yyyy-MM-dd-HH}.log">  
+            <PatternLayout pattern="%date{yyyy-MM-dd HH:mm:ss.SSS} %level [%thread][%file:%line] - %msg%n" />  
+            <Policies>  
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />  
+            </Policies>  
+        </RollingRandomAccessFile>  
+        <!-- 游戏产品数据分析日志 -->  
+        <RollingRandomAccessFile name="ProductLog"  
+            fileName="${LOG_HOME}/${SERVER_NAME}_${STAT_NAME}"  
+            filePattern="${LOG_HOME}/${SERVER_NAME}_${STAT_NAME}.%d{yyyy-MM-dd-HH}.log">  
+            <PatternLayout  
+                pattern="%date{yyyy-MM-dd HH:mm:ss.SSS} %level [%thread][%file:%line] - %msg%n" />  
+            <Policies>  
+                <TimeBasedTriggeringPolicy interval="1"  
+                    modulate="true" />  
+            </Policies>  
+        </RollingRandomAccessFile>  
+    </appenders>  
+    <loggers>  
+        <!-- 3rdparty Loggers -->  
+        <logger name="org.springframework.core" level="info">  
+        </logger>  
+        <logger name="org.springframework.beans" level="info">  
+        </logger>  
+        <logger name="org.springframework.context" level="info">  
+        </logger>  
+        <logger name="org.springframework.web" level="info">  
+        </logger>  
+        <logger name="org.jboss.netty" level="warn">  
+        </logger>  
+        <logger name="org.apache.http" level="warn">  
+        </logger>  
+        <logger name="com.mchange.v2" level="warn">  
+        </logger>  
+        <!-- Game Stat  logger -->  
+        <logger name="com.u9.global.service.log" level="info"  
+            additivity="false">  
+            <appender-ref ref="ProductLog" />  
+        </logger>  
+        <!-- Root Logger -->  
+        <root level="DEBUG" includeLocation="true">  
+            <appender-ref ref="DevLog" />  
+            <appender-ref ref="Console" />  
+        </root>  
+    </loggers>  
+</configuration> 
+存在问题:在Eclipse下一切运行正常，如果把应用打包成jar包发布后，cmd命令行模式下，即使Console开着的情况下，也没法输出，文件输出也没有任何日志。
+问题已经解决，需要在MANIFEST.MF文件里Class-Path 最前加个'.',目的是让与jar包平级的配置文件log4j2.xml加载进来。
+比如
+Class-Path: . lib/antlr-2.7.6.jar lib/other.jar
+这样，就把包含了log4j2.xml的路径放到了classpath,因此，log4j2能读取这个文件。
+
+有时候，为了同一份log4j文件要支持写到不同的log中（否则会导致打印的内容被覆盖，其中一个进程写不进log等问题），需要在载入的时候对内容进行动态修改，比如根据server id分别生成game1.log,game2.log
+
+可以代码进行加载log4文件
+File file = new File("log4j2.xml");  
+BufferedInputStream in = null;  
+try {  
+	in = new BufferedInputStream(new FileInputStream(file));  
+<span style="white-space:pre">            </span><strong><span style="color:#33cc00;">//TODO 先进行文本修改</span></strong>  
+	final ConfigurationSource source = new ConfigurationSource();  
+	source.setInputStream(in);  
+	Configurator.initialize(null, source);  
+} catch (FileNotFoundException e) {  
+	e.printStackTrace();  
+}  
+
+要使用异步写日志的功能，必须引入Disruptor
+<asyncRoot> or <asyncLogger>
+官方建议一般程序员查看的日志改成异步方式，一些运营日志改成同步
+
+Asynchronous Appenders 和 Asynchronous Loggers 区别:
+在</appenders> 节点里添加
+<Async name="Async">
+  <AppenderRef ref="MyFile"/>
+</Async>
+为Asynchronous Appenders 性能比同步快，比Asynchronous Loggers慢
+
+在loggers节点添加
+<AsyncLogger name="com.foo.Bar" level="trace" includeLocation="true">
+  <AppenderRef ref="RandomAccessFile"/>
+</AsyncLogger>
+
+或者添加
+<!-- Root Logger -->
+<asyncRoot level="DEBUG">
+<appender-ref ref="DevLog" />
+<appender-ref ref="Console" />
+</asyncRoot>
+
+为logger async 用的是无锁并发技术，必须引入Disruptor
+测试了下，单线程异步比同步效率提高了1倍。线程越多性能提高越明显。
+如果要加上位置信息比如哪个类，第几行，需要设置 includeLocation="true"
+但默认不设置好像也是true,
+
+location 主要包含了如下:
+If
+ one of the layouts is configured with a location-related attribute like HTML locationInfo,
+ or one of the patterns %C
+ or $class, %F
+ or %file, %l
+ or %location, %L
+ or %line, %M
+ or %method, Log4j will take a snapshot of the stack, and walk the stack trace to find the location information.
+====================
+log4j2最终输出点
+AbstractOutputStreamAppender .append(final LogEvent event)

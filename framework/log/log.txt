@@ -1,0 +1,293 @@
+// 加载配置 log4j:configuration
+System.setProperty("log4j.configuration","file:res/config/log/log4j.xml");
+//System.setProperty("log4j.configuration","classpath:resource/log4j.xml");
+
+log4j.properties to logback.xml Translator
+//http://logback.qos.ch/translator/
+
+Logger log = LoggerFactory.getLogger(Log4jDemo.class);
+Logger log = LoggerFactory.getLogger(LogbackDemo.class);
+
+//http://blog.csdn.net/conquer0715/article/details/9365899
+如果将<logger name="logback.LogbackDemo" level="INFO" additivity="false">修改为 <logger name="logback.LogbackDemo" level="INFO" additivity="true">那打印结果将是日志打印了两次，因为打印信息向上级传递，logger本身打印一次，root接到后又打印一次
+没有设置addtivity，默认为true，将此loger的打印信息向上级传递；
+没有设置appender，此loger本身不打印任何信息。
+<logger name="logback.LogbackDemo" level="INFO" additivity="false">控制logback.LogbackDemo类的日志打印，打印级别为“INFO”；
+additivity属性为false，表示此loger的打印信息不再向上级传递
+
+<!--slf4j2包下的类在ERROR级别时候传递到root logger中-->
+<logger name="slf4j2" level="ERROR" />
+<!--每天生成一个日志文件，保存30天的日志文件。-->
+<appender name="DayFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+		<fileNamePattern>logs/logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+		<maxHistory>30</maxHistory>
+	</rollingPolicy>
+	<encoder>
+		<pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+	</encoder>
+</appender>
+
+<logger name="GATEFLOW" additivity="false">
+	<level value="debug" />
+	<appender-ref ref="AsyncFlowLogAppender"/>
+</logger>
+
+<logger name="GATEINNERFLOW" additivity="false">
+	<level value="debug" />
+	<appender-ref ref="AsyncInnerFlowLogAppender"/>
+</logger>
+
+<logger name="GATEMESSAGE" additivity="false">
+	<level value="debug" />
+	<appender-ref ref="AsyncMessageLogAppender"/>
+</logger>
+
+<logger name="GATESESSIONCREATE" additivity="false">
+	<level value="debug" />
+	<appender-ref ref="CONSOLE"/>
+</logger>
+
+<logger name="GATESESSIONCLOSE" additivity="false">
+	<level value="debug" />
+	<appender-ref ref="CONSOLE"/>
+</logger>
+
+<logger name="INNERSESSIONCLOSE" additivity="false">
+	<level value="debug" />
+	<appender-ref ref="AsyncInnerSessionCloseLogAppender"/>
+</logger>
+
+<logger name="com.game.mina.code.ServerProtocolDecoder" additivity="false">
+	<level value="debug" />
+	<appender-ref ref="AsyncDefenseLogAppender"/>
+</logger>
+
+<logger name="com.game.mina.handler.SSLServerProtocolHandler" additivity="false">
+	<level value="debug" />
+	<appender-ref ref="CONSOLE"/>
+</logger>
+
+#lo4j
+log4j.rootLogger = error,error_logger
+
+#log4j.category.org=error
+#log4j.category.com.mchange=error
+#log4j.category.org=error
+#log4j.category.com.mchange=error
+#log4j.category.java.sql=error
+
+#console
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.layout=org.apache.log4j.PatternLayout 
+log4j.appender.console.layout.ConversionPattern=%-d{yyyy-MM-dd HH\:mm\:ss} [%c]-[%p] %m%n
+
+#error
+log4j.appender.error_logger=org.apache.log4j.RollingFileAppender
+log4j.appender.error_logger.File=logs/error/error.log
+log4j.appender.error_logger.MaxFileSize=102400KB
+log4j.appender.error_logger.MaxBackupIndex=10000
+log4j.appender.error_logger.layout=org.apache.log4j.PatternLayout 
+log4j.appender.error_logger.layout.ConversionPattern=%-d{yyyy-MM-dd HH\:mm\:ss} [%c]-[%p] %m%n
+
+#io-error
+log4j.logger.io_error_logger = error,io_error_logger
+log4j.additivity.io_error_logger=false
+log4j.appender.io_error_logger=org.apache.log4j.RollingFileAppender
+log4j.appender.io_error_logger.File=logs/error/io-error.log
+log4j.appender.io_error_logger.MaxFileSize=102400KB
+log4j.appender.io_error_logger.MaxBackupIndex=10000
+log4j.appender.io_error_logger.layout=org.apache.log4j.PatternLayout
+log4j.appender.io_error_logger.layout.ConversionPattern=%-d{yyyy-MM-dd HH\:mm\:ss} [%c]-[%p] %m%n 
+
+#server status
+log4j.logger._15min_logger = error,server_status_logger
+log4j.additivity.server_status_logger=true
+log4j.appender.server_status_logger=org.apache.log4j.RollingFileAppender
+log4j.appender.server_status_logger.File=logs/error/server-status.log
+log4j.appender.server_status_logger.MaxFileSize=102400KB
+log4j.appender.server_status_logger.MaxBackupIndex=10000
+log4j.appender.server_status_logger.layout=org.apache.log4j.PatternLayout
+log4j.appender.server_status_logger.layout.ConversionPattern=%-d{yyyy-MM-dd HH\:mm\:ss} [%c]-[%p] %m%n 
+
+#1 minute
+log4j.logger._1min_logger = error,_1min_logger
+log4j.additivity._1min_logger=false
+log4j.appender._1min_logger=org.apache.log4j.DailyRollingFileAppender
+log4j.appender._1min_logger.File=logs/minute/minute
+log4j.appender._1min_logger.DatePattern='-'yyyy-MM-dd-HH-mm'.log'
+log4j.appender._1min_logger.layout=org.apache.log4j.PatternLayout
+log4j.appender._1min_logger.layout.ConversionPattern=%m%n
+
+#60 minute
+log4j.logger._60min_logger = error,_60min_logger
+log4j.additivity._60min_logger=false
+log4j.appender._60min_logger=org.apache.log4j.DailyRollingFileAppender
+log4j.appender._60min_logger.File=logs/60minute/60minute
+log4j.appender._60min_logger.DatePattern='-'yyyy-MM-dd-HH'.log'
+log4j.appender._60min_logger.layout=org.apache.log4j.PatternLayout
+log4j.appender._60min_logger.layout.ConversionPattern=%m,%-d{yyyy-MM-dd HH\:mm\:ss}%n
+
+#24 hour 
+log4j.logger._24Hour_logger = error,_24Hour_logger
+log4j.additivity._24Hour_logger=false
+log4j.appender._24Hour_logger=org.apache.log4j.DailyRollingFileAppender
+log4j.appender._24Hour_logger.File=logs/24hour/24hour
+log4j.appender._24Hour_logger.DatePattern='-'yyyy-MM-dd'.log'
+log4j.appender._24Hour_logger.layout=org.apache.log4j.PatternLayout
+log4j.appender._24Hour_logger.layout.ConversionPattern=%m,%-d{yyyy-MM-dd HH\:mm\:ss}%n
+
+#ping
+log4j.logger.ping_logger = error,ping_logger
+log4j.additivity.ping_logger=false
+log4j.appender.ping_logger=org.apache.log4j.RollingFileAppender
+log4j.appender.ping_logger.File=logs/error/ping.log
+log4j.appender.ping_logger.MaxFileSize=102400KB
+log4j.appender.ping_logger.MaxBackupIndex=10000
+log4j.appender.ping_logger.layout=org.apache.log4j.PatternLayout 
+log4j.appender.ping_logger.layout.ConversionPattern=%-d{yyyy-MM-dd HH\:mm\:ss} [%c]-[%p] %m%n
+
+#kunlun login log
+#/yyyymm/login_pid_rid_yyyymmdd.log
+log4j.logger.kunlun_login_logger = error,kunlun_login_logger
+log4j.additivity.kunlun_login_logger=false
+log4j.appender.kunlun_login_logger=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.kunlun_login_logger.File = logs/kunlun/login
+log4j.appender.kunlun_login_logger.DatePattern='_'yyyyMMdd'.log'
+log4j.appender.kunlun_login_logger.layout=org.apache.log4j.PatternLayout
+log4j.appender.kunlun_login_logger.layout.ConversionPattern=%m%n
+
+#kunlun active log
+#/yyyymm/active_pid_rid_yyyymmdd.log
+log4j.logger.kunlun_active_logger = error,kunlun_active_logger
+log4j.additivity.kunlun_active_logger=false
+log4j.appender.kunlun_active_logger=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.kunlun_active_logger.File = logs/kunlun/active
+log4j.appender.kunlun_active_logger.DatePattern='_'yyyyMMdd'.log'
+log4j.appender.kunlun_active_logger.layout=org.apache.log4j.PatternLayout
+log4j.appender.kunlun_active_logger.layout.ConversionPattern=%m%n
+
+
+#kunlun online log
+#/yyyymm/online_pid_rid_yyyymmdd.log
+log4j.logger.kunlun_online_logger = error,kunlun_online_logger
+log4j.additivity.kunlun_online_logger=false
+log4j.appender.kunlun_online_logger=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.kunlun_online_logger.File = logs/kunlun/online
+log4j.appender.kunlun_online_logger.DatePattern='_'yyyyMMdd'.log'
+log4j.appender.kunlun_online_logger.layout=org.apache.log4j.PatternLayout
+log4j.appender.kunlun_online_logger.layout.ConversionPattern=%m%n
+
+<!-- log4j2 -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- status=debug 可以查看log4j的装配过程 -->
+<configuration status="error" monitorInterval="1800">
+	<properties>
+		<property name="LOG_HOME">logs/error</property>
+		<property name="MINUTE_HOME">logs/minute</property>
+	</properties>
+	
+	<appenders>
+    	<!-- 错误日志 -->
+    	<RollingFile name="error_appender" fileName="${LOG_HOME}/error.log" filePattern="${LOG_HOME}/error-%d{yyyy-MM-dd}-%i.log.gz">
+    		<PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%c]-[%level]-[%thread] %m%n"/>
+    		<SizeBasedTriggeringPolicy size="100 MB" />
+    	</RollingFile>
+    	
+    	<!-- IO的错误日志 -->
+    	<RollingFile name="io_error_appender" fileName="${LOG_HOME}/io-error.log" filePattern="${LOG_HOME}/io-error-%d{yyyy-MM-dd}-%i.log.gz">
+    		<PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%c]-[%level]-[%thread] %m%n"/>
+    		<SizeBasedTriggeringPolicy size="100 MB" />
+    	</RollingFile>
+    	
+    	<!-- 服务器状态日志 -->
+    	<RollingFile name="server_status_appender" fileName="${LOG_HOME}/server-status.log" filePattern="${LOG_HOME}/server-status-%d{yyyy-MM-dd}-%i.log.gz">
+    		<PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%c]-[%level]-[%thread] %m%n"/>
+    		<SizeBasedTriggeringPolicy size="100 MB" />
+    	</RollingFile>
+    	
+    	<!-- 配置的错误日志 -->
+    	<RollingFile name="config_error_appender" fileName="${LOG_HOME}/config-error.log" filePattern="${LOG_HOME}/config-error-%d{yyyy-MM-dd}-%i.log.gz">
+    		<PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%c]-[%level]-[%thread] %m%n"/>
+    		<SizeBasedTriggeringPolicy size="100 MB" />
+    	</RollingFile>
+
+		<!-- 框架的错误日志主要是场景指令报错 -->
+    	<RollingFile name="frame_appender" fileName="${LOG_HOME}/frame_error.log" filePattern="${LOG_HOME}/frame_error-%d{yyyy-MM-dd}-%i.log.gz">
+    		<PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%c]-[%level]-[%thread] %m%n"/>
+    		<SizeBasedTriggeringPolicy size="100 MB" />
+    	</RollingFile>
+
+		<!-- 游戏日志(1分钟) -->
+    	<RollingRandomAccessFile name="_1min_appender" fileName="${MINUTE_HOME}/minute" filePattern="${MINUTE_HOME}/minute-%d{yyyy-MM-dd-HH-mm}.log">
+    		<PatternLayout pattern="%m%n"/>
+    		<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
+			</Policies>
+    	</RollingRandomAccessFile>
+	</appenders>
+	
+	<loggers>
+		<!-- <logger name="org.springframework" level="warn"/>
+		<logger name="org.jboss.netty" level="warn"/>
+		<logger name="org.apache.http" level="warn"/>
+		<logger name="org.apache.commons" level="warn"/>
+		<logger name="com.mchange.v2" level="warn"/>
+		<logger name="com.ibatis.common" level="warn"/> -->
+		<logger name="java.sql" level="warn"/>
+
+		<logger name="error_logger" level="error" additivity="false">
+			<AppenderRef ref="error_appender" />
+		</logger>
+		<logger name="io_error_logger" level="error" additivity="false">
+			<AppenderRef ref="io_error_appender" />
+		</logger>
+		<logger name="config_error_logger" level="error" additivity="false">
+			<AppenderRef ref="config_error_appender" />
+		</logger>
+		<logger name="server_status_logger" level="error" additivity="false">
+			<AppenderRef ref="server_status_appender" />
+		</logger>
+		<logger name="frame_logger" level="error" additivity="false">
+			<AppenderRef ref="frame_appender" />
+		</logger>
+		<logger name="_1min_logger" level="error" additivity="false">
+			<AppenderRef ref="_1min_appender" />
+		</logger>
+		
+		<root level="error">
+			<AppenderRef level="error" ref="error_appender" />
+		</root>
+	</loggers>
+
+</configuration>
+
+由于用了springmvc框架，日志配置好后，会输出很多spring日志，在log4j.xml中，增加一段配置，修改spring包的日志输出级别
+<!-- 通过<category></category>的定义可以将各个包中的类日志输出到不同的日志文件中 -->
+<category name="org.springframework">
+	<priority value="error" />
+	<appender-ref ref="CONSOLE" />
+</category>
+<logger name="java.sql">
+	<level value="error" />
+</logger>
+<logger name="org.quartz">
+	<level value="error" />
+</logger>
+<logger name="com.ibatis">
+	<level value="error" />
+</logger>
+<logger name="org.apache.mina">
+	<level value="error" />
+</logger>
+<logger name="snaq">
+	<level value="error" />
+</logger>
+<root>
+	<level value="info" />
+	<appender-ref ref="CONSOLE" />
+<!--		<appender-ref ref="AsyncFileAppender" />-->
+</root>
+ 
+log4j.xml
+logback.xml
