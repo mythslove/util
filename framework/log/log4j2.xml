@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- status=debug 可以查看log4j的装配过程 -->
+<configuration status="error" monitorInterval="1800">
+	<properties>
+		<property name="LOG_HOME">logs/error</property>
+		<property name="MINUTE_HOME">logs/minute</property>
+	</properties>
+	
+	<appenders>
+    	<!-- 错误日志 -->
+    	<RollingFile name="error_appender" fileName="${LOG_HOME}/error.log" filePattern="${LOG_HOME}/error-%d{yyyy-MM-dd}-%i.log.gz">
+    		<PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%c]-[%level]-[%thread] %m%n"/>
+    		<SizeBasedTriggeringPolicy size="100 MB" />
+    	</RollingFile>
+    	
+    	<!-- IO的错误日志 -->
+    	<RollingFile name="io_error_appender" fileName="${LOG_HOME}/io-error.log" filePattern="${LOG_HOME}/io-error-%d{yyyy-MM-dd}-%i.log.gz">
+    		<PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%c]-[%level]-[%thread] %m%n"/>
+    		<SizeBasedTriggeringPolicy size="100 MB" />
+    	</RollingFile>
+    	
+    	<!-- 服务器状态日志 -->
+    	<RollingFile name="server_status_appender" fileName="${LOG_HOME}/server-status.log" filePattern="${LOG_HOME}/server-status-%d{yyyy-MM-dd}-%i.log.gz">
+    		<PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%c]-[%level]-[%thread] %m%n"/>
+    		<SizeBasedTriggeringPolicy size="100 MB" />
+    	</RollingFile>
+    	
+    	<!-- 配置的错误日志 -->
+    	<RollingFile name="config_error_appender" fileName="${LOG_HOME}/config-error.log" filePattern="${LOG_HOME}/config-error-%d{yyyy-MM-dd}-%i.log.gz">
+    		<PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%c]-[%level]-[%thread] %m%n"/>
+    		<SizeBasedTriggeringPolicy size="100 MB" />
+    	</RollingFile>
+
+		<!-- 框架的错误日志主要是场景指令报错 -->
+    	<RollingFile name="frame_appender" fileName="${LOG_HOME}/frame_error.log" filePattern="${LOG_HOME}/frame_error-%d{yyyy-MM-dd}-%i.log.gz">
+    		<PatternLayout pattern="%-d{yyyy-MM-dd HH:mm:ss} [%c]-[%level]-[%thread] %m%n"/>
+    		<SizeBasedTriggeringPolicy size="100 MB" />
+    	</RollingFile>
+
+		<!-- 游戏日志(1分钟) -->
+    	<RollingRandomAccessFile name="_1min_appender" fileName="${MINUTE_HOME}/minute" filePattern="${MINUTE_HOME}/minute-%d{yyyy-MM-dd-HH-mm}.log">
+    		<PatternLayout pattern="%m%n"/>
+    		<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
+			</Policies>
+    	</RollingRandomAccessFile>
+	</appenders>
+	
+	<loggers>
+		<!-- <logger name="org.springframework" level="warn"/>
+		<logger name="org.jboss.netty" level="warn"/>
+		<logger name="org.apache.http" level="warn"/>
+		<logger name="org.apache.commons" level="warn"/>
+		<logger name="com.mchange.v2" level="warn"/>
+		<logger name="com.ibatis.common" level="warn"/> -->
+		<logger name="java.sql" level="warn"/>
+
+		<logger name="error_logger" level="error" additivity="false">
+			<AppenderRef ref="error_appender" />
+		</logger>
+		<logger name="io_error_logger" level="error" additivity="false">
+			<AppenderRef ref="io_error_appender" />
+		</logger>
+		<logger name="config_error_logger" level="error" additivity="false">
+			<AppenderRef ref="config_error_appender" />
+		</logger>
+		<logger name="server_status_logger" level="error" additivity="false">
+			<AppenderRef ref="server_status_appender" />
+		</logger>
+		<logger name="frame_logger" level="error" additivity="false">
+			<AppenderRef ref="frame_appender" />
+		</logger>
+		<logger name="_1min_logger" level="error" additivity="false">
+			<AppenderRef ref="_1min_appender" />
+		</logger>
+		
+		<root level="error">
+			<AppenderRef level="error" ref="error_appender" />
+		</root>
+	</loggers>
+
+</configuration>
