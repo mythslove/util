@@ -1,4 +1,4 @@
-// 加载配置 log4j:configuration
+﻿// 加载配置 log4j:configuration
 System.setProperty("log4j.configuration","file:res/config/log/log4j.xml");
 //System.setProperty("log4j.configuration","classpath:resource/log4j.xml");
 
@@ -7,6 +7,19 @@ log4j.properties to logback.xml Translator
 
 Logger log = LoggerFactory.getLogger(Log4jDemo.class);
 Logger log = LoggerFactory.getLogger(LogbackDemo.class);
+
+log4j  Logger.getLogger
+log4j2  LogManager.getLogger
+slf4j/logback  LoggerFactory.getLogger
+logger.entry();   //trace级别的信息，单独列出来是希望你在某个方法或者程序逻辑开始的时候调用，和logger.trace("entry")基本一个意思
+logger.exit();    //和entry()对应的结束方法，和logger.trace("exit");一个意思
+
+log4j 2.0与以往的1.x有一个明显的不同，其配置文件只能采用.xml, .json或者 .jsn。在默认情况下，系统选择configuration文件的优先级如下：（classpath为scr文件夹）
+
+classpath下名为 log4j-test.json 或者log4j-test.jsn文件
+classpath下名为 log4j2-test.xml
+classpath下名为 log4j.json 或者log4j.jsn文件
+classpath下名为 log4j2.xml
 
 //http://blog.csdn.net/conquer0715/article/details/9365899
 如果将<logger name="logback.LogbackDemo" level="INFO" additivity="false">修改为 <logger name="logback.LogbackDemo" level="INFO" additivity="true">那打印结果将是日志打印了两次，因为打印信息向上级传递，logger本身打印一次，root接到后又打印一次
