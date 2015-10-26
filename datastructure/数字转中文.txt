@@ -1,0 +1,17 @@
+private parseSpeedPercent2SpeedStr(speed: string): string {
+	var speedLen: number = speed.length;
+	var speedUnit: String[] = ["","万","亿","万亿","兆","万兆","亿兆","万亿兆"];
+	var unitLen: number = speedUnit.length;
+	var value: string;
+	var unitIndex: number = Math.floor(speedLen / 4);
+	if(unitIndex > unitLen - 1) {
+		value = speed.slice((unitLen - 1) * 4) + speedUnit[unitLen - 1];
+	}
+	else {
+		value = speed.slice(unitIndex * 4) + speedUnit[unitIndex];
+	}
+	return value
+}
+
+var unit: String[] = ["","万","亿","万亿","兆","万兆","亿兆","万亿兆"];
+var steep: String[] = ["","十","百","千"];
