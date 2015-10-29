@@ -1,0 +1,97 @@
+jre6\bin\java -cp "./;lib/*;lib/Jetty/*;extensions/__lib__/*"   -server -Xloggc:logs/gc.log -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -XX:+DisableExplicitGC -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=0 -XX:SurvivorRatio=1 -Xms256m -Xmx1024m -XX:PermSize=256M -XX:MaxPermSize=256M -jar dntg_start.jar &
+pause
+
+ -server -Xloggc:logs/gc.log
+ 
+Java线程Dump分析工具--jstack
+dump 文件里，值得关注的线程状态有：
+死锁，Deadlock（重点关注）
+执行中，Runnable  
+等待资源，Waiting on condition（重点关注）
+等待获取监视器，Waiting on monitor entry（重点关注）
+暂停，Suspended
+对象等待中，Object.wait() 或 TIMED_WAITING
+阻塞，Blocked（重点关注） 
+停止，Parked
+
+Java中的JavaCore/HeapDump文件及其分析方法
+有时致命问题发生后，Java应用不会死掉，还能继续运行；
+但有时致命问题发生，Java进程会死掉；
+为了能够保留Java应用发生致命错误前的运行状态，JVM在死掉前产生两个文件，分别为JavaCore及HeapDump文件。
+JavaCore是关于CPU的，而HeapDump文件是关于内存的。
+JavaCore文件主要保存的是Java应用各线程在某一时刻的运行的位置，即JVM执行到哪一个类、哪一个方法、哪一个行上。它是一个文本文件，打开后可以看到每一个线程的执行栈，以stack trace的显示。通过对JavaCore文件的分析可以得到应用是否“卡”在某一点上，即在某一点运行的时间太长，例如数据库查询，长期得不到响应，最终导致系统崩溃等情况。
+HeapDump文件是一个二进制文件，它保存了某一时刻JVM堆中对象使用情况，这种文件需要相应的工具进行分析，如IBM Heap Analyzer这类工具。这类文件最重要的作用就是分析系统中是否存在内存溢出的情况。
+HeapDump文件是指定时刻的Java堆栈的快照，是一种镜像文件。Heap Analyzer工具通过分析HeapDump文件，哪些对象占用了太多的堆栈空间，来发现导致内存泄露或者可能引起内存泄露的对象。
+
+
+Java heap dump
+为了分析java应用的内存泄漏，使用thread dump往往解决不了问题。使用jstat【eg：jstat -gcutil pid 1000 5】工具查看运行的java应用的heap size,perm size ,survivor ratio等，当时你无法知道是什么对象把堆填满了。
+java heap是分配给实例类和数组对象运行数据区，所有java线程在运行期间共享heap中的数据。Java heap dump相当于java应用在运行的时候在某个时间点上打了个快照(snapshot)。
+触发Java heap dump
+有以下方法出发heap dump
+使用$JAVA_HOME/bin/jmap -dump来触发，eg：jmap -dump:format=b,file=/home/longhao/heamdump.out
+使用$JAVA_HOME/bin/jcosole中的MBean，到MBean>com.sun.management>HotSpotDiagnostic>操作>dumpHeap中，点击 dumpHeap按钮。生成的dump文件在java应用的根目录下面。
+在应用启动时配置相关的参数 -XX:+HeapDumpOnOutOfMemoryError，当应用抛出OutOfMemoryError时生成dump文件。
+使用hprof。启动虚拟机加入-Xrunhprof:head=site，会生成java.hprof.txt文件。该配置会导致jvm运行非常的慢，不适合生产环境。
+分析 Java heap dump
+1：使用IBM HeapAnalyzer
+     IBM HeapAnalyzer是一款免费的JVM内存堆的图形分析工具，它可以有效的列举堆的内存使用状况，帮助分析Java内存泄漏的原因。
+     下载解压后有一个ha413.jar，执行: java -Xmx512m -jar ha413.jar /home/longhao/heapdump.out
+2：jhat
+     jhat(Java Head Analyse Tool )是用来分析java堆的命令，可以将堆中的对象以html的形式显示出来，包括对象的数量，大小等等，并支持对象查询语言OQL，分析相关的应用后，可以通过http://localhost:7000来访问分析结果。
+     示例: $JAVA_HOME/bin/jhat -J-Xmx512m /home/longhao/dump.out
+3：Eclipse MemoryAnalyzer
+     Eclipse Memory Analyzer是一个快速并且功能强大的Java heap分析器，能够帮助你查找内存泄漏和减少内存消耗。在File>Acquire Heap Dump>configure>HPROF jmap dump provider设置一下分析应用的JDK，点击相关应用列表来生成heap dump并分析。
+     在socket，nio中的有些API中，申请的内存是直接想OS要的，在堆中分析内存是查看不到的，可以通过-XX:MaxDirectMemorySize=来设置应用向OS直接申请的最大内存数。
+
+java profile tool without gui
+java命令行HPROF Profiler
+The HPROF Profiler
+The Heap and CPU Profiling Agent (HPROF)是JAVA2 SDK自带的一个简单的profiler代理，它通过与Java Virtual Machine Profiler Interface (JVMPI) 交互，将profiling信息通过本地文件或socket输出ASCII或二进制格式的流。
+HPROF可以监控CPU使用率，堆分配统计。除此之外，还可以报告JVM所有监视器和线程的完整的堆的dump状态。
+HPROF的JVM参数的语法如下：
+-Xrunhprof[:help]|[:param=value,param2=value2, ...]
+示例:
+-Xrunhprof:file=log.txt,thread=y,depth=3
+The file parameter determines where the stack dump is written.
+file参数决定dump的堆栈写入到那个文件。
+HPROF的详细参数如下：
+复制代码
+Hprof usage: -Xrunhprof[:help]|[:<option>=<value>, ...]
+Option Name and Value   Description             Default
+---------------------   -----------             -------
+heap=dump|sites|all     heap profiling          all
+cpu=samples|old         CPU usage               off
+format=a|b              ascii or binary output  a
+file=<file>             write data to file      java.hprof
+                               (.txt for ascii)
+net=<host>:<port>       send data over a socket write to file
+depth=<size>            stack trace depth       4
+cutoff=<value>          output cutoff point     0.0001
+lineno=y|n              line number in traces?  y
+thread=y|n              thread in traces?       n
+doe=y|n                 dump on exit?           y
+一个javac的示例
+Command used: javac -J-agentlib:hprof=cpu=samples Hello.java
+
+Java内存Dump文件查看和分析工具介绍
+dump文件太大，用JDK自带的工具JHat，加载不进来，用两个工具：
+1.IBM Memory Analyzer
+2.Eclipse Memory Analysis
+Eclipse 插件在线安装地址：http://download.eclipse.org/mat/1.0/update-site/
+如果要查内存泄露，必须先dump出JVM 的heap：
+/usr/java/bin/jmap -dump:file=hprof-jvm.bin -F PID
+PID为进程号
+dump到文件以后下载到本地，用工具查看，工具会给你列出最耗内存的地方，然后你可以根据内存的变化来判断这些代码存在内存泄露的可能性。
+
+JProfiler youkit java profiler
+JVM大内存分析，不推荐jmap+jhat，推荐JProfiler
+youkit java profiler会出现假死的情况
+
+Heap Dump文件分析工具IBM Heap Analyzer
+IBM Memory Analyzer
+IBM Dump Analyzer
+
+thread dump analyzer
+
+jhat Java堆分析工具(Java heap Analyzes Tool)

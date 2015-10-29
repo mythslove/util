@@ -1,0 +1,5 @@
+防止全局变量污染
+
+local e = _ENV
+local _M = {}
+local _ENV = setmetatable({},{__index = function(_, k) return _M[k] or _ENV[k] end, __newindex=_M})

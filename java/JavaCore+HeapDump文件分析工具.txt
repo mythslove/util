@@ -1,0 +1,27 @@
+JavaCore/HeapDump文件分析工具
+IBM HeapAnalyzer
+更多信息见官方网站地址：http://www.alphaworks.ibm.com/tech/heapanalyzer
+ 在我们的应用程序发生内存泄露的时候，会生成heapdump文件，文件名字类似于这样：heapdump.20081105.031129.172870.phd，即heapdump. <yyyymmdd>.<hhmmss>.<pid>.phd。<hhmmss>表示什么不知道，好像不是时间。heapdump文件是指定时刻的java堆栈的快照，是一种镜像文件。HeapAnalyzer工具通过分析heapdump文件，哪些对象占用了太多的堆栈空间，来发现导致内存泄露或者可能引起内存泄露的对象。<?xml:namespace prefix = o ns = "urn:schemas-microsoft-com:office:office" />
+ 下载解压得到ha28.jar和readme.html使用文档。启动该软件的方式：
+启动后的界面如下，使用open file菜单，浏览打开我们需要进行内存堆栈分析的heapdump文件：
+Heapdump文件都比较大，打开的时候比较长，推荐在配置比较好的机器上进行堆栈分析，-Xmx设置大一点。
+打开heapdump文件后的效果图，不要关闭中间的窗口。在Analysis菜单可以选择多种视图进行分析，Tree View，Objects List等等。随软件标配的readme.html说明的非常详细请参考该文件了解各种视图的用法。
+
+IBM Thread and Monitor Dump Analyzer for Java
+更多信息见官方网站地址：http://www.alphaworks.ibm.com/tech/jca
+在一些平台上，在有些情况下，javacore也被称为javadump，它包含jvm和应用程序相关的在特定时刻的一些诊断信息，如操作系统，应用程序环境，线程，native stack本地堆，锁，和内存的信息。在生成heapdump文件的时候，一般会生成javacore文件。
+ Operating System
+ Javacore file name
+ Format Meaning
+ 
+Windows and Linux
+ javacore.YYYYMMDD.HHMMSS.PID.txt
+ YYYYMMDD =year month day, D=processID 
+AIX    
+ javacorePID.TIME.txt
+ PID=processID, TIME=seconds since<?xml:namespace prefix = st1 ns = "urn:schemas-microsoft-com:office:smarttags" />1/1/1970
+
+ IBM Thread and Monitor Dump Analyzer for Java通过分析javacore文件可以发现死锁，可能的悬挂线程，资源竞争等。
+ 下载解压得到jca29.jar，jca.properties.xml和readme.html使用文档。启动该软件的方式：
+启动后的界面如下，使用open thread dumps菜单，浏览打开我们需要进行分析的javacore文件：
+随软件标配的readme.html说明的非常详细请参考该文件了解各种视图的用法。

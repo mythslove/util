@@ -1,0 +1,35 @@
+JVM问题诊断常用命令：jinfo,jmap,jstack
+1.jinfo
+描述：输出给定 java 进程所有的配置信息。包括 java 系统属性和 jvm 命令行标记等。
+用法：
+jinfo [ option ] pid
+jinfo [ option ] executable core
+jinfo [ option ] [server-id@]remote-hostname-or-IP
+例子：
+jinfo pid
+这个命令包含了 JDK 和 JVM 运行起来时的一些属性。
+
+2.jmap
+描述 ：输出给定 java 进程所有的内存使用信息。
+使用：
+    jmap [ option ] pid
+    jmap [ option ] executable core
+    jmap [ option ] [server-id@]remote-hostname-or-IP
+<no option>
+jmap -histo pid>a.log
+没有可选项时，会输出所有共享的对象映射。
+开始地址，映射大小，全路径。
+直接 jmap pid得到如下结果：
+0x08048000     46K  /work/ProgramFiles/jdk1.6.0_14/bin/java
+0xb6763000     74K  /work/ProgramFiles/jdk1.6.0_14/jre/lib/i386/libzip.so
+0xb6774000     41K  /lib/tls/i686/cmov/libnss_files-2.9.so
+0xb6780000     37K  /lib/tls/i686/cmov/libnss_nis-2.9.so
+0xb678b000     29K  /lib/tls/i686/cmov/libnss_compat-2.9.so
+目前还说不是很理解这个执行结果是什么意思。经询问同事了解，是加载的文件的信息。
+-heap 选项
+jmap -heap pid : 查看堆的配置和大当前各个区块的使用情况，如伊甸区、老年代，永久代。可以用此来判断内存目前的使用情况以及垃圾回收情况：
+jmap -heap pid,
+jmap -permstat pid
+3.jstack - Stack Trace
+为指定的线程输出 java 的线程堆栈信息，包括了进程里的所有线程。每一个线程 frame ，包括类全名，方法名，代码行。
+java.lang.Thread.State ： RUNNABLE BLOCKED TIMED_WATTING(sleep 后会进入这种状态 ) （如果是 BLOCKED 状态就要注意了，看看 blocked 的状态在等待什么？因为什么而阻塞？）最常见的情况是线程在等待网络的读写，比如当网络数据没有准备好读时，线程处于这种等待状态，而一旦有数据准备好读之后，线程会重新激活，读取并处理数据。

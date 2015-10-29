@@ -1,0 +1,58 @@
+jre6\bin\java -cp "./;lib/*;lib/Jetty/*;extensions/__lib__/*"   -server -Xloggc:logs/gc.log -XX:+PrintGCDetails -XX:+PrintGCApplicationStoppedTime -XX:+DisableExplicitGC -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=0 -XX:SurvivorRatio=1 -Xms256m -Xmx1024m -XX:PermSize=256M -XX:MaxPermSize=256M -jar dntg_start.jar &
+pause
+
+使用IBM heapAnalyzer分析heap dump文件步骤
+1.            如何产生 java heap dump
+当 JVM中对象过多， java堆（ java heap）耗尽时，就会产生 java heap dump文件。另外，可以使用工具或命令显示地产生该文件。在命令行中程序执行过程中按 ctrl+break可以产生，使用工具如， IBM HeapAnalyzer， Sap Memory Analyzer以及 eclipse memory analyzer都可以在指定状态产生 dump文件。
+2.            如何分析 java heap dump 文件
+这里以使用 ibm heapAnalyzer工具为例说明；在 ibm网站https://www14.software.ibm.com/webapp/iwm/web/reg/download.do?source=AW-0IN&S_PKG=0IN&lang=en_US&cp=UTF-8下载 ha395.zip文件，后面数字是版本号。解压后用命令行进入到解压目录，使用如 java –Xmx800m –jar ha395.jar启动工具，如果启动过程中发现控制台有java.lang.OutOfMemoryError出现，可以适当加大上面的数字（ 800），给予更多的空间。
+然后“ Open”产生的 dump文件，打开画面如下，文件很大的话需要等待一段时间
+ 
+ibm heapAnalyzer工具在打开时已经进行了基本的分析，上面全部完成后，会出现如下结果：
+[-photo didnot display-]
+ 
+除了显示该要结果外，还生成了一棵树。这个画面先不要关，直到你不再需要这个 dump了。
+基本术语：
+[-photo didnot display-]
+ 
+然后对上面的界面做一下简单的介绍。
+ 
+[-photo didnot display-]
+每个节点树的大小占总的堆栈大小，如 94%，然后是这个类的在内存中的大小，后面 5个子对象，注意这个子对象的意思不是继承关系中的子类，而是上面定义的：如果 A对象参考 B对象，则 B对象是 A对象的子对象。
+然后该工具根据分析结果把可能产生泄漏的对象显示了出来。如下图：
+ 
+[-photo didnot display-]
+分析根据主要是 child object和 parent object的大小差别程度，如果子对象不大，而父对象超级大，很可能是因为父对象是一个集合类（如数组），包含了大量子对象作为元素。
+工具栏：
+ 
+[-photo didnot display-]
+点击分析工具栏的表格图标，显示出下面的统计表格，可以点击栏标题进行排序。各标题意思简单介绍如下：
+TotalSize：这个对象，以及这个对象的所有子对象（以及子对象的子对象，也就是从这个对象可以参考到的所有对象）的大小的总和，单位为 bits；
+Size:       这个对象的大小，如第一个 56bits = 56/8bytes = 7b；
+No.Child：子对象的个数，不包括子对象的子对象；
+No.Parent：父对象的个数，不包括父对象的对象；
+Name：对象的名称。
+Address：对象在 heap中的地址。
+3.            分析结果
+3.1         大量的以 java/util/HashMap$Entry为元素的数组，占据了总堆栈的 8%，很高的比例。
+3.2         大量的 java/util/Hashtable$HashtableEntry为元素的数组，占据总堆栈的 5%。
+3.3         3.2里面的数组大量指向 java/util/Hashtable$HashtableCacheHashEntry 对象。
+根据分析，最有嫌疑的对象应该是 java/util/HashMap$Entry 。
+ 
+4.            其他经验收集：
+“ Heapdump工具的使用很简单，难点在于找到 “内存泄漏的真正原因 ”，一般需要通过多个 heapdump 文件的对比才能找到 。 ”
+“ ObjectInputStream/ObjectOutputStream 要注意内存泄漏 .  reset()”
+“因为 JDK 的问题，如果使用的是： J2RE 5.0 IBM J9 2.3AIX ppc-32 build j9vmap3223-20070201 ，这个SR4的版本有个问题就是，限定了类加载器可加载的类数量，默认为 8192 ，如果超过此限制，就会抛出　OutOfMemory 的错误 。 ”
+对于这个问题，可以设置增加类加载器可加载的类数量解决。
+5.            知识补充介绍
+5.1         堆 (Heap) 和非堆 (Non-heap) 内存 
+按照官方的说法： “Java 虚拟机具有一个堆，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。 ”“ 在 JVM 中堆之外的内存称为非堆内存 (Non-heap memory)” 。可以看出 JVM主要管理两种类型的内存：堆和非堆。简单来说堆就是 Java 代码可及的内存，是留给开发人员使用的；非堆就是 JVM 留给自己用的，所以方法区、 JVM 内部处理或优化所需的内存 ( 如 JIT 编译后的代码缓存 ) 、每个类结构( 如运行时常数池、字段和方法数据 ) 以及方法和构造方法的代码都在非堆内存中。 
+
+5.2         堆内存分配 
+JVM 初始分配的内存由 -Xms 指定，默认是物理内存的 1/64 ； JVM 最大分配的内存由 -Xmx 指定，默认是物理内存的 1/4 。默认空余堆内存小于 40% 时， JVM 就会增大堆直到 -Xmx 的最大限制；空余堆内存大于 70% 时，JVM 会减少堆直到 -Xms 的最小限制。因此服务器一般设置 -Xms 、 -Xmx 相等以避免在每次 GC 后调整堆的大小。 
+
+5.3         非堆内存分配 
+JVM 使用 -XX ： PermSize 设置非堆内存初始值，默认是物理内存的 1/64 ；由 XX:MaxPermSize 设置最大非堆内存的大小，默认是物理内存的 1/4 。 
+
+5.4         JVM 内存限制 ( 最大值 )
+首先 JVM 内存限制于实际的最大物理内存 ，假设物理内存无限大的话， JVM 内存的最大值跟操作系统有很大的关系。简单的说就 32 位处理器虽然可控内存空间有 4GB, 但是具体的操作系统会给一个限制，这个限制一般是2GB-3GB （一般来说 Windows 系统下为 1.5G -2G ， Linux 系统下为 2G -3G ），而 64bit 以上的处理器就不会有限制了。
