@@ -1,0 +1,16 @@
+工具：
+MAT Eclipse Memory Analyzer Tool（MAT）分析内存泄漏
+MAT(Memory Analyzer Tool)，一个基于Eclipse的内存分析工具，是一个快速、功能丰富的JAVA heap分析工具，它可以帮助我们查找内存泄漏和减少内存消耗。使用内存分析工具从众多的对象中进行分析，快速的计算出在内存中对象的占用大小，看看是谁阻止了垃圾收集器的回收工作，并可以通过报表直观的查看到可能造成这种结果的对象。
+2.为什么使用MAT？
+当服务器应用占用了过多内存的时候，会遇到OutOfMemoryError。如何快速定位问题呢？Eclipse MAT的出现使这个问题变得非常简单。它能够离线分析dump的文件数据。
+首页：http://www.eclipse.org/mat/ 
+插件更新地址：
+http://download.eclipse.org/mat/1.0/update-site/
+
+3.对PathNode的key 类型String换成 Integer,通过移位来生成key 
+x << 16|y 
+获取的堆栈分析文件
+1.jmap -dump:format=b,file=/data/log/dump.dat 26822
+2.通过JVM自动生成hprof 文件
+4.PathNode的x和y 用short够用，value的值目前都为1用byte
+JVM在分配内存时是以8 bytes为粒度进行分配
