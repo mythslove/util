@@ -1,0 +1,8 @@
+AS3 中 null 与 undefined 的区别
+在 AS3 中，null 与 undefined 都表示数据的缺失，所以当使用等号（==）去判断 null 与 undefined 它会返回 true，但使用恒等号（===）去判断 null 与 undefined 时它会返回 false，这也就是它们在使用时，会有一些细节上的差别。以下为实际使用过程中的差异举例：
+1、数据转型时的差异：如果通过括号运算符转型成为 Number，null 返回的是 0，而 undefined 返回的是NaN；在转型为字符串时，null 返回 "null"，而 undefined 返回 "undefined "。
+2、数据类型默认值差异：如 String 默认值为 null，并不是 undefined （在AS2中它是 undefined ）；在非 Boolean、int、uint、Number 类型的数据对象默认值都为 null，并不是 undefined。
+3、动态类上的差异：访问一个动态类上一个不存在的变量或方法时，返回的是 undefined，并不是 null。
+4、数据类型本身的差异：null 类型为 Null，而 undefined 数据类型为 void。函数如果返回 void 类型就表示返回的是 undefined。
+5、转型失败时的差异：转型失败时返回的是 null，而不是 undefined。
+6、变量类型不同，变量的默认初始值就不同： int,uint - 0	Boolean - false	Number - NaN	String,Array,Object - null	未指定变量类型 - undefined
