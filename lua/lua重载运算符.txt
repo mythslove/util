@@ -1,0 +1,12 @@
+local bigintmt = {
+	__add = add,
+	__sub = sub,
+	__mul = mul,
+	__div = div,
+	__mod = mod,
+	__unm = negate,
+	__eq = eq,
+	__lt = lt,
+	__le = le,
+	__tostring = biginttostring
+}

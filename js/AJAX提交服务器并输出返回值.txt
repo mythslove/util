@@ -1,0 +1,17 @@
+<script type="text/javascript">
+    function sendData() {
+        var title = document.getElementsByTagName('title')[0].text;
+        var comment = $('input[name="comment"]:checked').val()
+        $.ajax({
+        type: "POST",
+        url: "http://download.egret.com/comment.php",
+        data: "title=" + title+ '&comment=' + comment,
+        dataType : "json",
+        success: function(msg){
+            $("#postok").hide();
+            $("#post1").show();
+        }
+    });
+    }
+</script>
+<lable><button class="btn" onclick="sendData();">Ã·Ωª</button></lable>

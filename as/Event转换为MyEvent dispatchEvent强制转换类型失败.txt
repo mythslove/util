@@ -1,0 +1,33 @@
+TypeError: Error #1034: 强制转换类型失败:无法将 flash.events::Event 转换为 MyEvent
+同样这也是一个运行错误，我们来看看是一段什么样的代码导致他报错的
+大家也先找找错在哪
+首先先看一下这个MyEvent类
+package
+{
+import flash.events.Event;
+	public class MyEvent extends Event
+	{
+		public static const MY:String = "my";
+		 
+		public function MyEvent(type:String, bubbles:Boolean=false, cancelable:Boolean=false)
+		{
+		super(type, bubbles, cancelable);
+		}
+	}
+}
+然后侦听这个事件，在得到它后转发到spr对象中
+addEventListener(MyEvent.MY,myHandle);
+private function myHandle(e:MyEvent):void{
+	spr.dispatchEvent(e);
+}
+再就是，spr对象中侦听了这个事件
+spr.addEventListener(MyEvent.MY,myHandle);
+private function myHandle(e:MyEvent):void{
+	trace(e);
+}
+最后在这个侦听的地方就报错了。
+在殿堂之路中，继承Event自定义事件举例中讲过这种问题的解决办法，但没有讲的很详细
+很多新手在看高手的代码，都会看到自定义事件中都会重构clone这个方法，但是自己尝试后发现，不重构clone也不会出现什么问题，以至于有些人在写项目赶时间时，也不太喜欢100%模仿高手的写法，就会把重构clone这个看似很小，其实隐藏了秘密的东西给忽略掉。
+在殿堂之路中有句原话：以下摘抄《殿堂之路》第300页原话
+其中clone()方法最为重要，使用clone()方法可以返回当前事件对象的一个拷贝。这个clone()方法一般不需要我们手工调用，当我们将一个事件对象重复发送时，EventDispatcher类会自动调用clone()方法，产生这个事件的拷贝。而上面的代码中就是在将MyEvent事件重复发送，好理解的说就是转发MyEvent事件，如果没有重构MyEvent事件，那么EventDispatcher在重复发送时，调用的clone是Event的clone方法，那么clone出来的事件自然就是Event类，而不是MyEvent，所以你在侦听时使用e:MyEvent类型接收时，自然就会报错无法将Event类转换成MyEvent类。
+总结：看书要仔细，看高手的代码一定要学习透彻，而不是拿来主义，或者是模仿主义！

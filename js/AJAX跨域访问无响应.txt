@@ -1,0 +1,21 @@
+AJAX跨域访问无响应
+在A网站使用jQuery .post 向自己网站发送请求，OK。
+在B网站向A网站发请求时，fireBug报错，但没有显示错误原因。
+
+用chrome跟踪，显示了错误原因是：not allowed by Access-Control-Allow-Origin。于是在server设置
+context.Response.AppendHeader("Access-Control-Allow-Origin", "*");
+成功解决。
+ 
+过程中还学到：
+context.Request.Form 用于处理 post请求，context.Request.QueryString用于处理 get请求，
+如果直接使用context.Request，可同时处理post，get请求。（当get, post只key相同时，get优先）
+
+
+context.Response.AppendHeader("Access-Control-Allow-Origin", "*");
+
+
+关键一句
+
+XML/HTML代码
+http_request.setRequestHeader("If-Modified-Since","0"); 
+

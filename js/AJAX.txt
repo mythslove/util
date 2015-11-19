@@ -1,0 +1,44 @@
+
+XMLHttpRequest 对象用于在后台与服务器交换数据。
+在不重新加载页面的情况下更新网页
+在页面已加载后从服务器请求数据
+在页面已加载后从服务器接收数据
+在后台向服务器发送数据
+为了应对所有的现代浏览器，包括 IE5 和 IE6，请检查浏览器是否支持 XMLHttpRequest 对象。如果支持，则创建 XMLHttpRequest 对象。如果不支持，则创建 ActiveXObject ：
+
+和服务器交换数据(AJAX = Asynchronous JavaScript and XML（异步的 JavaScript 和 XML）)的基础 XMLHttpRequest
+var xmlhttp;
+if (window.XMLHttpRequest)
+{// code for IE7+, Firefox, Chrome, Opera, Safari
+	xmlhttp=new XMLHttpRequest();
+}
+else
+{// code for IE6, IE5
+	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+}
+
+css #id .class
+
+var xhr = this.getXHR();
+xhr.open(request.method, virtualUrl, true);
+xhr.responseType = responseType;
+xhr.send();
+
+var xmlhttp;
+function loadXMLDoc(url)
+{
+xmlhttp=null;
+if (window.XMLHttpRequest)
+{// code for all new browsers
+  xmlhttp=new XMLHttpRequest();
+}
+else if (window.ActiveXObject)
+{// code for IE5 and IE6
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+}
+if (xmlhttp!=null)
+{
+  xmlhttp.onreadystatechange=state_Change;
+  xmlhttp.open("GET",url,true);
+  xmlhttp.send(null);
+}

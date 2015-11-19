@@ -1,0 +1,17 @@
+
+http://www.html5dw.com/js-memory-leak-troubleshooting-method-chrome-profiles/
+
+±à¼­Æ÷
+Sublime Text
+webstorm
+
+WebÇ°¶Ë¿ò¼Ü
+bootstrap
+home:http://getbootstrap.com
+example:http://v2.bootcss.com
+code:https://github.com/twbs/bootstrap
+
+<link rel="shortcut icon" href="../assets/ico/favicon.png">
+<script src="../assets/js/bootstrap-modal.js"></script>
+<script src="../assets/js/bootstrap-scrollspy.js"></script>
+<script src="../assets/js/bootstrap-transition.js"></script>

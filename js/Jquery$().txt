@@ -1,0 +1,21 @@
+$()是Jquery一个封装的方法，主要是用来获取页面中的一个节点
+	比如var qlogin = $('qlogin');就是获取qlogin节点，然后修改qlogin的属性
+jquery ajax $.post()请求 回调函数function(data){} data值{"ok":false,"text":"用户名错误!"}
+	$.post(url,data,function(data){
+		if(!data.ok){
+			alert('错误：'+data.text);
+		}
+	},'json');
+	post方法需要制定第四个参数返回json数据，就可以直接用对象.成员的形式来访问data中返回的数据了
+javascript中$(function(),alert($)可以输出对象
+	$ 就是一个 JavaScript 标识符，可以是函数名、对象名或普通变量名
+	这个符号比较特殊，很多 JavaScript 代码库（如 jQuery 和 Prototype）都默认使用这个符号
+	在 jQuery 中，$ 就是 jQuery 对象的引用，可以实现以 jQuery 对象为入口的操作
+	$(function() {....}) 是 jQuery 中的经典用法，等同于 $(document).ready(function() {....})，
+	即在页面加载完成后才执行某个函数，如果函数中要操作 DOM，在页面加载完成后再执行会更安全
+
+<!-- JavaScript 放置在文档最后面可以使页面加载速度更快 -->
+    <!-- 可选: 包含 jQuery 库 -->
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <!-- 可选: 合并了 Bootstrap JavaScript 插件 -->
+    <script src="http://apps.bdimg.com/libs/bootstrap/3.2.0/js/bootstrap.min.js"></script>
